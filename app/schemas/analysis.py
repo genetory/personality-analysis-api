@@ -5,11 +5,12 @@ from datetime import datetime
 
 class AnalysisBase(BaseModel):
     """성향분석 기본 스키마"""
-    title: str = Field(..., min_length=1, max_length=255, description="성향분석 제목")
-    description: Optional[str] = Field(None, description="성향분석 설명")
-    total_questions: str = Field("0", description="총 질문 수")
-    result_type: str = Field(..., description="결과 타입 (binary_pairs, continuous, categories, custom)")
-    result_config: Optional[Dict[str, Any]] = Field(None, description="결과 해석 규칙")
+    name: str = Field(..., min_length=1, max_length=100, description="성향분석 이름")
+    description: str = Field(..., description="성향분석 설명")
+    category: str = Field(..., description="성향분석 카테고리")
+    participants: int = Field(0, description="참여자 수")
+    thumb_image_url: Optional[str] = Field(None, description="썸네일 이미지 URL")
+    is_active: int = Field(1, description="활성화 상태")
 
 
 class AnalysisCreate(AnalysisBase):
@@ -19,11 +20,12 @@ class AnalysisCreate(AnalysisBase):
 
 class AnalysisUpdate(BaseModel):
     """성향분석 업데이트 스키마"""
-    title: Optional[str] = Field(None, min_length=1, max_length=255)
+    name: Optional[str] = Field(None, min_length=1, max_length=100)
     description: Optional[str] = None
-    total_questions: Optional[str] = None
-    result_type: Optional[str] = None
-    result_config: Optional[Dict[str, Any]] = None
+    category: Optional[str] = None
+    participants: Optional[int] = None
+    thumb_image_url: Optional[str] = None
+    is_active: Optional[int] = None
 
 
 class AnalysisInDB(AnalysisBase):
@@ -43,12 +45,10 @@ class Analysis(AnalysisInDB):
 
 class AnalysisWithDetails(Analysis):
     """상세 정보가 포함된 성향분석 스키마"""
-    dimensions: List["Dimension"] = []
     questions: List["Question"] = []
 
 
 # 순환 참조 해결을 위한 import
-from app.schemas.dimension import Dimension
 from app.schemas.question import Question
 
 # 순환 참조 해결

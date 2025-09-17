@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     MYSQL_PORT: int = 3306
     MYSQL_USER: str = "genetory"
     MYSQL_PASSWORD: str = "?Shjy20733"
-    MYSQL_DATABASE: str = "personality-analysis-api"
+    MYSQL_DATABASE: str = "personality-analysis"
     
     # JWT 설정 (향후 사용자 인증용)
     SECRET_KEY: str = "your-secret-key-here-change-this-in-production"

@@ -1,15 +1,11 @@
 from sqlalchemy.orm import Session
 from typing import List, Optional, Dict, Any
 from app.models.analysis import Analysis
-from app.models.dimension import Dimension
 from app.models.question import Question
-from app.models.option import Option
-from app.models.option_score import OptionScore
+from app.models.question_option import QuestionOption
 from app.schemas.analysis import AnalysisCreate, AnalysisUpdate
-from app.schemas.dimension import DimensionCreate
-from app.schemas.question import QuestionCreate
-from app.schemas.option import OptionCreate
-from app.schemas.option_score import OptionScoreCreate
+from app.schemas.question import QuestionCreate, QuestionWithOptions
+from app.schemas.question_option import QuestionOptionCreate
 
 
 class AnalysisService:
@@ -66,20 +62,12 @@ class AnalysisService:
             .first()
         )
     
-    def get_analysis_dimensions(self, analysis_id: str) -> List[Dimension]:
-        """특정 분석의 성향 차원들 조회"""
-        return (
-            self.db.query(Dimension)
-            .filter(Dimension.analysis_id == analysis_id)
-            .all()
-        )
-    
     def get_analysis_questions(self, analysis_id: str) -> List[Question]:
         """특정 분석의 질문들 조회 (순서대로)"""
         return (
             self.db.query(Question)
-            .filter(Question.analysis_id == analysis_id)
-            .order_by(Question.question_order)
+            .filter(Question.analysis_type_id == analysis_id)
+            .order_by(Question.order_index)
             .all()
         )
     
@@ -93,19 +81,11 @@ class AnalysisService:
         
         return (
             self.db.query(Question)
-            .options(joinedload(Question.options))
-            .filter(Question.analysis_id == analysis_id)
-            .order_by(Question.question_order)
+            .options(joinedload(Question.question_options))
+            .filter(Question.analysis_type_id == analysis_id)
+            .order_by(Question.order_index)
             .all()
         )
-    
-    def create_dimension(self, dimension_data: DimensionCreate) -> Dimension:
-        """새로운 성향 차원 생성"""
-        db_dimension = Dimension(**dimension_data.model_dump())
-        self.db.add(db_dimension)
-        self.db.commit()
-        self.db.refresh(db_dimension)
-        return db_dimension
     
     def create_question(self, question_data: QuestionCreate) -> Question:
         """새로운 질문 생성"""
@@ -115,21 +95,13 @@ class AnalysisService:
         self.db.refresh(db_question)
         return db_question
     
-    def create_option(self, option_data: OptionCreate) -> Option:
-        """새로운 선택지 생성"""
-        db_option = Option(**option_data.model_dump())
+    def create_question_option(self, option_data: QuestionOptionCreate) -> QuestionOption:
+        """새로운 질문 선택지 생성"""
+        db_option = QuestionOption(**option_data.model_dump())
         self.db.add(db_option)
         self.db.commit()
         self.db.refresh(db_option)
         return db_option
-    
-    def create_option_score(self, score_data: OptionScoreCreate) -> OptionScore:
-        """새로운 선택지 점수 생성"""
-        db_score = OptionScore(**score_data.model_dump())
-        self.db.add(db_score)
-        self.db.commit()
-        self.db.refresh(db_score)
-        return db_score
     
     def get_analysis_statistics(self, analysis_id: str) -> Dict[str, Any]:
         """분석 통계 정보 조회"""
@@ -137,13 +109,12 @@ class AnalysisService:
         if not analysis:
             return {}
         
-        dimensions_count = len(self.get_analysis_dimensions(analysis_id))
         questions_count = len(self.get_analysis_questions(analysis_id))
         
         return {
             "analysis_id": analysis_id,
-            "title": analysis.title,
+            "name": analysis.name,
             "total_questions": questions_count,
-            "dimensions_count": dimensions_count,
-            "result_type": analysis.result_type
+            "category": analysis.category,
+            "participants": analysis.participants
         }

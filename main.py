@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.api import analysis_router, responses_router, results_router, comments_router, result_types
-from app.api.ai_analysis import router as ai_analysis_router
+from app.api import analysis_router
+from app.api.personality_results import router as personality_results_router
 
 # FastAPI 애플리케이션 생성
 app = FastAPI(
@@ -30,34 +30,12 @@ app.include_router(
 )
 
 app.include_router(
-    responses_router,
-    prefix=f"{settings.API_V1_STR}/responses",
-    tags=["responses"]
+    personality_results_router,
+    prefix=f"{settings.API_V1_STR}",
+    tags=["personality-results"]
 )
 
-app.include_router(
-    results_router,
-    prefix=f"{settings.API_V1_STR}/results",
-    tags=["results"]
-)
 
-app.include_router(
-    comments_router,
-    prefix=f"{settings.API_V1_STR}/comments",
-    tags=["comments"]
-)
-
-app.include_router(
-    result_types.router,
-    prefix=f"{settings.API_V1_STR}/result-types",
-    tags=["result-types"]
-)
-
-app.include_router(
-    ai_analysis_router,
-    prefix=f"{settings.API_V1_STR}/ai-analysis",
-    tags=["ai-analysis"]
-)
 
 
 @app.get("/")

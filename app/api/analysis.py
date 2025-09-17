@@ -13,7 +13,22 @@ router = APIRouter()
 def get_analysis_list(db: Session = Depends(get_db)):
     """모든 성향분석 유형 조회"""
     service = AnalysisService(db)
-    return service.get_analysis_list()
+    analyses = service.get_analysis_list()
+    
+    # SQLAlchemy 모델을 Pydantic 스키마로 변환
+    return [
+        Analysis(
+            id=analysis.id,
+            name=analysis.name,
+            description=analysis.description,
+            category=analysis.category,
+            participants=analysis.participants,
+            thumb_image_url=analysis.thumb_image_url,
+            is_active=analysis.is_active,
+            created_at=analysis.created_at,
+            updated_at=analysis.updated_at
+        ) for analysis in analyses
+    ]
 
 
 @router.get("/{analysis_id}", response_model=AnalysisWithDetails)
@@ -70,20 +85,6 @@ def delete_analysis(analysis_id: str, db: Session = Depends(get_db)):
         )
 
 
-@router.get("/{analysis_id}/dimensions")
-def get_analysis_dimensions(analysis_id: str, db: Session = Depends(get_db)):
-    """특정 분석의 성향 차원들 조회"""
-    service = AnalysisService(db)
-    
-    # 분석 존재 여부 확인
-    analysis = service.get_analysis_by_id(analysis_id)
-    if not analysis:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="성향분석을 찾을 수 없습니다."
-        )
-    
-    return service.get_analysis_dimensions(analysis_id)
 
 
 @router.get("/{analysis_id}/questions", response_model=List[QuestionWithOptions])
