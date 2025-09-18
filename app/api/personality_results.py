@@ -26,6 +26,26 @@ async def get_personality_result(type_name: str, db: Session = Depends(get_db)):
         if not result:
             raise HTTPException(status_code=404, detail="Personality type not found")
         
+        # 궁합 타입들의 정보 가져오기 (ID로 조회)
+        best_type = ""
+        best_catchphrase = ""
+        worst_type = ""
+        worst_catchphrase = ""
+        
+        if result[10]:  # best_compatibility_type_id가 있는 경우
+            best_query = text("SELECT type_name, catchphrase FROM personality_results WHERE id = :id")
+            best_result = db.execute(best_query, {"id": result[10]}).fetchone()
+            if best_result:
+                best_type = best_result[1]  # catchphrase 사용
+                best_catchphrase = best_result[1]
+        
+        if result[12]:  # worst_compatibility_type_id가 있는 경우
+            worst_query = text("SELECT type_name, catchphrase FROM personality_results WHERE id = :id")
+            worst_result = db.execute(worst_query, {"id": result[12]}).fetchone()
+            if worst_result:
+                worst_type = worst_result[1]  # catchphrase 사용
+                worst_catchphrase = worst_result[1]
+        
         # JSON 필드들을 파싱
         personality_result = {
             "id": result[0],
@@ -42,11 +62,13 @@ async def get_personality_result(type_name: str, db: Session = Depends(get_db)):
             "growthTips": json.loads(result[9]),
             "compatibility": {
                 "best": {
-                    "type": result[10],
+                    "type": best_type,
+                    "catchphrase": best_catchphrase,
                     "reason": result[11]
                 },
                 "worst": {
-                    "type": result[12],
+                    "type": worst_type,
+                    "catchphrase": worst_catchphrase,
                     "reason": result[13]
                 }
             },
@@ -82,6 +104,26 @@ async def get_all_personality_results(db: Session = Depends(get_db)):
         
         personality_results = []
         for result in results:
+            # 궁합 타입들의 정보 가져오기 (ID로 조회)
+            best_type = ""
+            best_catchphrase = ""
+            worst_type = ""
+            worst_catchphrase = ""
+            
+            if result[10]:  # best_compatibility_type_id가 있는 경우
+                best_query = text("SELECT type_name, catchphrase FROM personality_results WHERE id = :id")
+                best_result = db.execute(best_query, {"id": result[10]}).fetchone()
+                if best_result:
+                    best_type = best_result[1]  # catchphrase 사용
+                    best_catchphrase = best_result[1]
+            
+            if result[12]:  # worst_compatibility_type_id가 있는 경우
+                worst_query = text("SELECT type_name, catchphrase FROM personality_results WHERE id = :id")
+                worst_result = db.execute(worst_query, {"id": result[12]}).fetchone()
+                if worst_result:
+                    worst_type = worst_result[1]  # catchphrase 사용
+                    worst_catchphrase = worst_result[1]
+            
             personality_result = {
                 "id": result[0],
                 "type": result[1],
@@ -97,11 +139,13 @@ async def get_all_personality_results(db: Session = Depends(get_db)):
                 "growthTips": json.loads(result[9]),
                 "compatibility": {
                     "best": {
-                        "type": result[10],
+                        "type": best_type,
+                        "catchphrase": best_catchphrase,
                         "reason": result[11]
                     },
                     "worst": {
-                        "type": result[12],
+                        "type": worst_type,
+                        "catchphrase": worst_catchphrase,
                         "reason": result[13]
                     }
                 },
