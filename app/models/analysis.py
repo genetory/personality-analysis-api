@@ -13,6 +13,8 @@ class Analysis(Base):
     id = Column(String(36), primary_key=True, default=generate_uuid, index=True)
     name = Column(String(100), nullable=False, index=True)
     description = Column(Text, nullable=False)
+    total_questions = Column(Integer, nullable=False, default=12)
+    estimated_time = Column(Integer, nullable=False, default=5)
     category = Column(String(50), nullable=False)
     participants = Column(Integer, nullable=False, default=0)
     thumb_image_url = Column(String(500), nullable=True)
@@ -22,6 +24,7 @@ class Analysis(Base):
     
     # 관계 설정
     questions = relationship("Question", back_populates="analysis_type", cascade="all, delete-orphan")
+    comments = relationship("Comment", back_populates="analysis", cascade="all, delete-orphan")
     
     def __repr__(self):
         return f"<Analysis(id={self.id}, name='{self.name}', category='{self.category}')>"

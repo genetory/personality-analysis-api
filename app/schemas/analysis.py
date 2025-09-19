@@ -7,6 +7,8 @@ class AnalysisBase(BaseModel):
     """성향분석 기본 스키마"""
     name: str = Field(..., min_length=1, max_length=100, description="성향분석 이름")
     description: str = Field(..., description="성향분석 설명")
+    total_questions: int = Field(12, description="총 질문 수")
+    estimated_time: int = Field(5, description="예상 소요 시간(분)")
     category: str = Field(..., description="성향분석 카테고리")
     participants: int = Field(0, description="참여자 수")
     thumb_image_url: Optional[str] = Field(None, description="썸네일 이미지 URL")
@@ -22,6 +24,8 @@ class AnalysisUpdate(BaseModel):
     """성향분석 업데이트 스키마"""
     name: Optional[str] = Field(None, min_length=1, max_length=100)
     description: Optional[str] = None
+    total_questions: Optional[int] = None
+    estimated_time: Optional[int] = None
     category: Optional[str] = None
     participants: Optional[int] = None
     thumb_image_url: Optional[str] = None

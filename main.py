@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.api import analysis_router
 from app.api.personality_results import router as personality_results_router
+from app.api.analysis_results import router as analysis_results_router
+from app.api.comments import router as comments_router
 
 # FastAPI 애플리케이션 생성
 app = FastAPI(
@@ -33,6 +35,18 @@ app.include_router(
     personality_results_router,
     prefix=f"{settings.API_V1_STR}",
     tags=["personality-results"]
+)
+
+app.include_router(
+    analysis_results_router,
+    prefix=f"{settings.API_V1_STR}",
+    tags=["analysis-results"]
+)
+
+app.include_router(
+    comments_router,
+    prefix=f"{settings.API_V1_STR}",
+    tags=["comments"]
 )
 
 

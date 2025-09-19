@@ -41,7 +41,7 @@ class Question(QuestionInDB):
 
 class QuestionWithOptions(Question):
     """선택지가 포함된 질문 스키마"""
-    question_options: List["QuestionOption"] = []
+    options: List["QuestionOption"] = []
 
 
 # 순환 참조 해결을 위한 import

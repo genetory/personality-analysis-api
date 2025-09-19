@@ -21,6 +21,8 @@ def get_analysis_list(db: Session = Depends(get_db)):
             id=analysis.id,
             name=analysis.name,
             description=analysis.description,
+            total_questions=analysis.total_questions,
+            estimated_time=analysis.estimated_time,
             category=analysis.category,
             participants=analysis.participants,
             thumb_image_url=analysis.thumb_image_url,
@@ -100,7 +102,34 @@ def get_analysis_questions(analysis_id: str, db: Session = Depends(get_db)):
             detail="성향분석을 찾을 수 없습니다."
         )
     
-    return service.get_questions_with_options(analysis_id)
+    questions = service.get_questions_with_options(analysis_id)
+    
+    # 수동으로 선택지 매핑
+    result = []
+    for question in questions:
+        question_dict = {
+            "id": question.id,
+            "analysis_type_id": question.analysis_type_id,
+            "text": question.text,
+            "category": question.category,
+            "axis": question.axis,
+            "order_index": question.order_index,
+            "created_at": question.created_at,
+            "options": [
+                {
+                    "id": option.id,
+                    "question_id": option.question_id,
+                    "text": option.text,
+                    "value": option.value,
+                    "axis_score": option.axis_score,
+                    "order_index": option.order_index,
+                    "created_at": option.created_at
+                } for option in question.question_options
+            ]
+        }
+        result.append(question_dict)
+    
+    return result
 
 
 @router.get("/{analysis_id}/statistics")

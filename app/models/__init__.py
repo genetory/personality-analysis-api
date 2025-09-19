@@ -1,6 +1,7 @@
 from app.models.analysis import Analysis
 from app.models.question import Question
 from app.models.question_option import QuestionOption
+from app.models.comment import Comment
 
 # 모델들 간의 관계 설정
 from sqlalchemy.orm import configure_mappers
@@ -11,5 +12,6 @@ configure_mappers()
 __all__ = [
     "Analysis",
     "Question",
-    "QuestionOption"
+    "QuestionOption",
+    "Comment"
 ]
